@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Login 3D</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0e1226; --card:#1a1f3d; --teks:#eef0ff; --redup:#9aa3d6;
+  --aksen:#ffb454; --ungu:#7c6cff; --salah:#ff7b8a; --benar:#7be0a8;
+}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%}
+body{
+  background:radial-gradient(circle at 30% 20%,#1b2150,var(--bg) 60%);
+  color:var(--teks); font-family:"Space Grotesk",system-ui,sans-serif;
+  display:grid; place-items:center; overflow:hidden; perspective:1200px;
+}
+
+/* Kubus 3D */
+.kubus{position:absolute; width:140px; height:140px; transform-style:preserve-3d;
+  animation:putar 18s linear infinite}
+.kubus.a{left:12%; top:18%}
+.kubus.b{right:10%; bottom:14%; width:90px; height:90px; animation-duration:24s; animation-direction:reverse}
+.kubus i{position:absolute; inset:0; border:2px solid rgba(124,108,255,.8); background:rgba(124,108,255,.10)}
+.kubus.a i:nth-child(1){transform:translateZ(70px)}
+.kubus.a i:nth-child(2){transform:rotateY(180deg) translateZ(70px)}
+.kubus.a i:nth-child(3){transform:rotateY(90deg) translateZ(70px)}
+.kubus.a i:nth-child(4){transform:rotateY(-90deg) translateZ(70px)}
+.kubus.a i:nth-child(5){transform:rotateX(90deg) translateZ(70px)}
+.kubus.a i:nth-child(6){transform:rotateX(-90deg) translateZ(70px)}
+.kubus.b i{border-color:rgba(255,180,84,.8); background:rgba(255,180,84,.08)}
+.kubus.b i:nth-child(1){transform:translateZ(45px)}
+.kubus.b i:nth-child(2){transform:rotateY(180deg) translateZ(45px)}
+.kubus.b i:nth-child(3){transform:rotateY(90deg) translateZ(45px)}
+.kubus.b i:nth-child(4){transform:rotateY(-90deg) translateZ(45px)}
+.kubus.b i:nth-child(5){transform:rotateX(90deg) translateZ(45px)}
+.kubus.b i:nth-child(6){transform:rotateX(-90deg) translateZ(45px)}
+@keyframes putar{to{transform:rotateX(360deg) rotateY(360deg)}}
+
+/* Kartu melayang sendiri */
+.ayun{transform-style:preserve-3d; animation:ayun 5s ease-in-out infinite}
+@keyframes ayun{
+  0%,100%{transform:translateY(0) rotateZ(-1deg)}
+  50%{transform:translateY(-16px) rotateZ(1deg)}
+}
+
+/* Kartu: .miring ikut mouse, .balik berputar saat pindah Masuk/Daftar */
+.miring{width:min(360px,88vw); height:440px; transform-style:preserve-3d; transition:transform .1s ease-out}
+.balik{position:relative; width:100%; height:100%; transform-style:preserve-3d; transition:transform .8s cubic-bezier(.3,.7,.2,1)}
+.balik.terbalik{transform:rotateY(180deg)}
+.sisi{
+  position:absolute; inset:0; padding:34px 30px; background:var(--card);
+  border:1px solid rgba(255,255,255,.1); border-radius:18px;
+  box-shadow:0 30px 60px rgba(0,0,0,.45); backface-visibility:hidden;
+  display:flex; flex-direction:column; gap:14px;
+}
+.sisi.belakang{transform:rotateY(180deg)}
+h1{font-size:28px; font-weight:700}
+p.sub{color:var(--redup); font-size:14px; margin-top:-8px}
+label{font-size:13px; color:var(--redup); display:flex; flex-direction:column; gap:6px}
+input{
+  background:#10142e; border:1px solid rgba(255,255,255,.14); color:var(--teks);
+  padding:12px 14px; border-radius:10px; font:inherit; font-size:15px;
+}
+input:focus-visible,button:focus-visible{outline:2px solid var(--aksen); outline-offset:2px}
+button.utama{
+  margin-top:4px; padding:13px; border:0; border-radius:10px; cursor:pointer;
+  background:var(--aksen); color:#2a1a00; font:inherit; font-weight:700; font-size:15px;
+  transition:filter .15s;
+}
+button.utama:hover{filter:brightness(1.08)}
+button.tautan{background:none; border:0; color:var(--redup); font:inherit; font-size:13px; cursor:pointer; text-decoration:underline; margin-top:auto}
+.pesan{min-height:18px; font-size:13px}
+.pesan.salah{color:var(--salah)} .pesan.benar{color:var(--benar)}
+.selamat{display:none; text-align:center; margin:auto 0}
+.selamat h1{margin-bottom:8px}
+.masuk .selamat{display:block}
+.masuk .formlogin{display:none}
+#info{position:fixed; left:12px; bottom:10px; font-size:12px; color:var(--redup)}
+</style>
+</head>
+<body>
+
+<div class="kubus a"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+<div class="kubus b"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+
+<div class="ayun">
+<div class="miring" id="miring">
+  <div class="balik" id="balik">
+
+    <section class="sisi" id="sisiMasuk">
+      <div class="formlogin" style="display:flex;flex-direction:column;gap:14px;height:100%">
+        <h1>Masuk</h1>
+        <p class="sub">Pakai akun yang sudah kamu daftarkan.</p>
+        <label>Username <input id="lUser" autocomplete="username"></label>
+        <label>Password <input id="lPass" type="password" autocomplete="current-password"></label>
+        <div class="pesan" id="lPesan" role="status"></div>
+        <button class="utama" id="btnMasuk">Masuk</button>
+        <button class="tautan" id="keDaftar">Belum punya akun? Daftar</button>
+      </div>
+      <div class="selamat">
+        <h1 id="salam">Selamat datang</h1>
+        <p class="sub">Login berhasil.</p>
+        <button class="tautan" id="keluar">Keluar</button>
+      </div>
+    </section>
+
+    <section class="sisi belakang">
+      <h1>Daftar</h1>
+      <p class="sub">Buat username dan password baru.</p>
+      <label>Username <input id="dUser" autocomplete="username"></label>
+      <label>Password <input id="dPass" type="password" autocomplete="new-password"></label>
+      <div class="pesan" id="dPesan" role="status"></div>
+      <button class="utama" id="btnDaftar">Buat akun</button>
+      <button class="tautan" id="keMasuk">Sudah punya akun? Masuk</button>
+    </section>
+
+  </div>
+</div>
+</div>
+
+<div id="info">mouse: belum bergerak</div>
+
+<script>
+const miring = document.getElementById("miring");
+const info = document.getElementById("info");
+
+window.addEventListener("pointermove", e => {
+  const x = (e.clientX / innerWidth - 0.5) * 2;
+  const y = (e.clientY / innerHeight - 0.5) * 2;
+  miring.style.transform = `perspective(900px) rotateY(${x * 28}deg) rotateX(${-y * 22}deg)`;
+  info.textContent = "mouse: " + x.toFixed(2) + ", " + y.toFixed(2);
+});
+
+const balik = document.getElementById("balik");
+document.getElementById("keDaftar").onclick = () => balik.classList.add("terbalik");
+document.getElementById("keMasuk").onclick  = () => balik.classList.remove("terbalik");
+
+async function buatHash(teks) {
+  try {
+    const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(teks));
+    return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
+  } catch { return btoa(teks); }
+}
+const ambil = () => { try { return JSON.parse(localStorage.getItem("akun") || "{}"); } catch { return {}; } };
+const simpan = d => { try { localStorage.setItem("akun", JSON.stringify(d)); } catch {} };
+
+function tampil(el, teks, jenis) { el.textContent = teks; el.className = "pesan " + jenis; }
+
+document.getElementById("btnDaftar").onclick = async () => {
+  const u = dUser.value.trim(), p = dPass.value, pesan = dPesan;
+  if (u.length < 3) return tampil(pesan, "Username minimal 3 huruf.", "salah");
+  if (p.length < 6) return tampil(pesan, "Password minimal 6 karakter.", "salah");
+  const akun = ambil();
+  if (akun[u]) return tampil(pesan, "Username sudah dipakai. Coba yang lain.", "salah");
+  akun[u] = await buatHash(p);
+  simpan(akun);
+  tampil(pesan, "Akun dibuat. Silakan masuk.", "benar");
+  setTimeout(() => { balik.classList.remove("terbalik"); lUser.value = u; lPass.focus(); }, 700);
+};
+
+document.getElementById("btnMasuk").onclick = async () => {
+  const u = lUser.value.trim(), p = lPass.value;
+  const akun = ambil();
+  if (akun[u] && akun[u] === await buatHash(p)) {
+    salam.textContent = "Selamat datang, " + u;
+    document.getElementById("sisiMasuk").classList.add("masuk");
+  } else {
+    tampil(lPesan, "Username atau password salah.", "salah");
+  }
+};
+
+document.getElementById("keluar").onclick = () => {
+  document.getElementById("sisiMasuk").classList.remove("masuk");
+  lPass.value = ""; lPesan.textContent = "";
+};
+
+lPass.addEventListener("keydown", e => e.key === "Enter" && btnMasuk.click());
+dPass.addEventListener("keydown", e => e.key === "Enter" && btnDaftar.click());
+</script>
+</body>
+</html>
